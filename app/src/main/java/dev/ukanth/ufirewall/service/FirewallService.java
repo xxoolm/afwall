@@ -1,5 +1,7 @@
 package dev.ukanth.ufirewall.service;
 
+import static android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE;
+
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -150,7 +152,9 @@ public class FirewallService extends Service {
                 .build();
 
         //if(G.activeNotification()) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            startForeground(NOTIFICATION_ID, notification, FOREGROUND_SERVICE_TYPE_SPECIAL_USE);
+        } else if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ) {
             startForeground(NOTIFICATION_ID, notification);
         } else {
             manager.notify(NOTIFICATION_ID, notification);
