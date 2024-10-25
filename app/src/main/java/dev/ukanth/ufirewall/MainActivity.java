@@ -31,6 +31,7 @@ import static dev.ukanth.ufirewall.util.SecurityUtil.LOCK_VERIFICATION;
 import static dev.ukanth.ufirewall.util.SecurityUtil.REQ_ENTER_PATTERN;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.KeyguardManager;
 import android.app.NotificationManager;
 import android.content.ActivityNotFoundException;
@@ -113,6 +114,7 @@ import dev.ukanth.ufirewall.util.G;
 import dev.ukanth.ufirewall.util.PackageComparator;
 import dev.ukanth.ufirewall.util.SecurityUtil;
 import haibison.android.lockpattern.utils.AlpSettings;
+import kotlin.Suppress;
 
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener, OnClickListener, SwipeRefreshLayout.OnRefreshListener,
@@ -280,6 +282,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         }
     }
 
+    @SuppressLint("UnspecifiedRegisterReceiverFlag")
     private void registerUIRefresh() {
         IntentFilter filter = new IntentFilter("dev.ukanth.ufirewall.ui.CHECKREFRESH");
         uiRefreshReceiver = new BroadcastReceiver() {
@@ -295,9 +298,14 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 }
             }
         };
-        registerReceiver(uiRefreshReceiver, filter);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(uiRefreshReceiver, filter, RECEIVER_EXPORTED);
+        } else {
+            registerReceiver(uiRefreshReceiver, filter);
+        }
     }
 
+    @SuppressLint("UnspecifiedRegisterReceiverFlag")
     private void registerThemeIntent() {
 
         IntentFilter filter = new IntentFilter("dev.ukanth.ufirewall.theme.REFRESH");
@@ -308,7 +316,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 recreate();
             }
         };
-        registerReceiver(themeRefreshReceiver, filter);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(themeRefreshReceiver, filter, RECEIVER_EXPORTED);
+        } else {
+            registerReceiver(themeRefreshReceiver, filter);
+        }
     }
 
     private void probeLogTarget() {
@@ -416,6 +428,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }*/
 
 
+    @SuppressLint("UnspecifiedRegisterReceiverFlag")
     private void registerToastbroadcast() {
         IntentFilter filter = new IntentFilter("TOAST");
         toastReceiver = new BroadcastReceiver() {
@@ -424,7 +437,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 Api.toast(getApplicationContext(), intent.getExtras().get("MSG") != null ? intent.getExtras().get("MSG").toString() : "", Toast.LENGTH_SHORT);
             }
         };
-        registerReceiver(toastReceiver, filter);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(toastReceiver, filter, RECEIVER_EXPORTED);
+        } else {
+            registerReceiver(toastReceiver, filter);
+        }
     }
 
     private void registerUIbroadcast4() {

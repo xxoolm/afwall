@@ -189,17 +189,31 @@ public class FirewallService extends Service {
         connectivityReciver = new ConnectivityChangeReceiver();
         filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
         filter.addAction(ConnectivityChangeReceiver.TETHER_STATE_CHANGED_ACTION);
-        registerReceiver(connectivityReciver, filter);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(connectivityReciver, filter, RECEIVER_EXPORTED);
+        } else {
+            registerReceiver(connectivityReciver, filter);
+        }
 
         IntentFilter intentFilter = new IntentFilter(Intent.ACTION_PACKAGE_ADDED);
         intentFilter.addDataScheme("package");
         packageReceiver = new PackageBroadcast();
-        registerReceiver(packageReceiver, intentFilter);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(packageReceiver, intentFilter, RECEIVER_EXPORTED);
+        } else {
+            registerReceiver(packageReceiver, intentFilter);
+        }
 
 
         intentFilter = new IntentFilter(Intent.ACTION_PACKAGE_REMOVED);
         intentFilter.addDataScheme("package");
-        registerReceiver(packageReceiver, intentFilter);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(packageReceiver, intentFilter,RECEIVER_EXPORTED);
+        } else {
+            registerReceiver(packageReceiver, intentFilter);
+        }
 
         if(bluetoothAdapter == null) {
             bluetoothAdapter = getBTAdapter(context);
