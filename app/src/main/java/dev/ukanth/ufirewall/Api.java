@@ -2332,7 +2332,10 @@ public final class Api {
         }
     }
 
-    private static void updateExportPackage(Map<String, JSONObject> exportMap, String packageName, int identifier) throws JSONException {
+    private static void updateExportPackage(Map<String, JSONObject> exportMap, String packageName, boolean isCheckded, int identifier) throws JSONException {
+        if (!isCheckded) {
+            return;
+        }
         JSONObject obj;
         if (packageName != null) {
             if (exportMap.containsKey(packageName)) {
@@ -2344,16 +2347,15 @@ public final class Api {
                 exportMap.put(packageName, obj);
             }
         }
-
     }
 
     private static void updatePackage(Context ctx, String savedPkg_uid, Map<String, JSONObject> exportMap, int identifier) throws JSONException {
         StringTokenizer tok = new StringTokenizer(savedPkg_uid, "|");
         while (tok.hasMoreTokens()) {
             String uid = tok.nextToken();
-            if (!uid.equals("")) {
+            if (!uid.isEmpty()) {
                 String packageName = ctx.getPackageManager().getNameForUid(Integer.parseInt(uid));
-                updateExportPackage(exportMap, packageName, identifier);
+                updateExportPackage(exportMap, packageName, true, identifier);
             }
         }
     }
@@ -2364,16 +2366,13 @@ public final class Api {
 
         try {
             for (PackageInfoData app : apps) {
-                if (app.selected_wifi || app.selected_3g || app.selected_roam || app.selected_vpn ||
-                        app.selected_tether || app.selected_lan || app.selected_tor) {
-                    updateExportPackage(exportMap, app.pkgName, WIFI_EXPORT);
-                    updateExportPackage(exportMap, app.pkgName, DATA_EXPORT);
-                    updateExportPackage(exportMap, app.pkgName, ROAM_EXPORT);
-                    updateExportPackage(exportMap, app.pkgName, VPN_EXPORT);
-                    updateExportPackage(exportMap, app.pkgName, TETHER_EXPORT);
-                    updateExportPackage(exportMap, app.pkgName, LAN_EXPORT);
-                    updateExportPackage(exportMap, app.pkgName, TOR_EXPORT);
-                }
+                updateExportPackage(exportMap, app.pkgName, app.selected_wifi, WIFI_EXPORT);
+                updateExportPackage(exportMap, app.pkgName, app.selected_3g, DATA_EXPORT);
+                updateExportPackage(exportMap, app.pkgName, app.selected_roam, ROAM_EXPORT);
+                updateExportPackage(exportMap, app.pkgName, app.selected_vpn, VPN_EXPORT);
+                updateExportPackage(exportMap, app.pkgName, app.selected_tether, TETHER_EXPORT);
+                updateExportPackage(exportMap, app.pkgName, app.selected_lan, LAN_EXPORT);
+                updateExportPackage(exportMap, app.pkgName, app.selected_tor, TOR_EXPORT);
             }
         } catch (JSONException e) {
             Log.e(TAG, e.getLocalizedMessage());
