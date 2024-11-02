@@ -2332,8 +2332,8 @@ public final class Api {
         }
     }
 
-    private static void updateExportPackage(Map<String, JSONObject> exportMap, String packageName, boolean isCheckded, int identifier) throws JSONException {
-        if (!isCheckded) {
+    private static void updateExportPackage(Map<String, JSONObject> exportMap, String packageName, boolean isChecked, int identifier) throws JSONException {
+        if (!isChecked) {
             return;
         }
         JSONObject obj;
@@ -2355,7 +2355,7 @@ public final class Api {
             String uid = tok.nextToken();
             if (!uid.isEmpty()) {
                 String packageName = ctx.getPackageManager().getNameForUid(Integer.parseInt(uid));
-                updateExportPackage(exportMap, packageName, true, identifier);
+                updateExportPackage(exportMap, packageName, /*is_checked=*/ true, identifier);
             }
         }
     }
