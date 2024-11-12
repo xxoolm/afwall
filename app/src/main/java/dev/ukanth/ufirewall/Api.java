@@ -165,7 +165,7 @@ public final class Api {
     public static final int SPECIAL_UID_NTP = -14;
 
     public static final int NOTIFICATION_ID = 1;
-    public static final String PREF_FIREWALL_STATUS = "AFWallStaus";
+    public static final String PREF_FIREWALL_STATUS = "AFWallStatus";
     public static final String DEFAULT_PREFS_NAME = "AFWallPrefs";
     //for import/export rules
     //revertback to old approach for performance
