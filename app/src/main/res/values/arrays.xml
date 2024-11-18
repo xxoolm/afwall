@@ -41,6 +41,8 @@
         <item>Serbian</item>
 
         <item>Simplifed Chinese</item>
+        <item>Sinhala</item>
+
         <item>Slovak</item>
         <item>Slovenian</item>
         <item>Spanish</item>
@@ -91,6 +93,8 @@
         <item>sr_CS</item>
         <item>sr</item>
         <item>zh</item>
+
+        <item>si</item>
         <item>sk</item>
         <item>sl</item>
         <item>es</item>
@@ -128,19 +132,6 @@
     <string-array name="busybox_binary_path">
         <item>builtin</item>
         <item>system</item>
-    </string-array>
-    
-    
-      <string-array name="dns_proxy">
-        <item>@string/auto</item>
-        <item>@string/enable_dns</item>
-        <item>@string/disable_dns</item>
-    </string-array>
-    
-      <string-array name="dns_proxy_values">
-        <item>auto</item>
-        <item>enable</item>
-        <item>disable</item>
     </string-array>
     
     <string-array name="pattern_max_attempt">

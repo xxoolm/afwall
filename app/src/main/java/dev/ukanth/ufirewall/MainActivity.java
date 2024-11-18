@@ -31,6 +31,7 @@ import static dev.ukanth.ufirewall.util.SecurityUtil.LOCK_VERIFICATION;
 import static dev.ukanth.ufirewall.util.SecurityUtil.REQ_ENTER_PATTERN;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.KeyguardManager;
 import android.app.NotificationManager;
 import android.content.ActivityNotFoundException;
@@ -95,7 +96,6 @@ import java.util.List;
 import java.util.Set;
 
 import dev.ukanth.ufirewall.Api.PackageInfoData;
-import dev.ukanth.ufirewall.activity.CustomRulesActivity;
 import dev.ukanth.ufirewall.activity.CustomScriptActivity;
 import dev.ukanth.ufirewall.activity.HelpActivity;
 import dev.ukanth.ufirewall.activity.LogActivity;
@@ -114,6 +114,7 @@ import dev.ukanth.ufirewall.util.G;
 import dev.ukanth.ufirewall.util.PackageComparator;
 import dev.ukanth.ufirewall.util.SecurityUtil;
 import haibison.android.lockpattern.utils.AlpSettings;
+import kotlin.Suppress;
 
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener, OnClickListener, SwipeRefreshLayout.OnRefreshListener,
@@ -149,7 +150,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private MaterialDialog runProgress;
     private AlertDialog dialogLegend = null;
 
-    private BroadcastReceiver uiProgressReceiver4,uiProgressReceiver6, toastReceiver,themeRefreshReceiver, uiRefreshReceiver;
+    private BroadcastReceiver uiProgressReceiver4, uiProgressReceiver6, toastReceiver, themeRefreshReceiver, uiRefreshReceiver;
     private IntentFilter uiFilter4, uiFilter6;
 
     //all async reference with context
@@ -192,11 +193,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         updateSelectedColumns();
 
-        if(selectedColumns <= DEFAULT_VIEW_LIMIT) {
+        if (selectedColumns <= DEFAULT_VIEW_LIMIT) {
             currentUI = 0;
             setContentView(R.layout.main_old);
-        }
-        else{
+        } else {
             currentUI = 1;
             setContentView(R.layout.main);
         }
@@ -245,7 +245,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     private void checkPermissions() {
-        if(G.enableTether()) {
+        if (G.enableTether()) {
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT)
                     != PackageManager.PERMISSION_GRANTED) {
                 // permissions have not been granted.
@@ -254,7 +254,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         PERMISSION_BLUETOOTH);
             }
         }
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
                     != PackageManager.PERMISSION_GRANTED) {
                 // permissions have not been granted.
@@ -267,11 +267,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     private void updateSelectedColumns() {
         selectedColumns = DEFAULT_COLUMN;
-        selectedColumns = G.enableLAN() ?  selectedColumns + 1 : selectedColumns;
-        selectedColumns = G.enableRoam() ?  selectedColumns + 1 : selectedColumns;
-        selectedColumns = G.enableVPN() ?  selectedColumns + 1 : selectedColumns;
-        selectedColumns = G.enableTether() ?  selectedColumns + 1 : selectedColumns;
-        selectedColumns = G.enableTor() ?  selectedColumns + 1 : selectedColumns;
+        selectedColumns = G.enableLAN() ? selectedColumns + 1 : selectedColumns;
+        selectedColumns = G.enableRoam() ? selectedColumns + 1 : selectedColumns;
+        selectedColumns = G.enableVPN() ? selectedColumns + 1 : selectedColumns;
+        selectedColumns = G.enableTether() ? selectedColumns + 1 : selectedColumns;
+        selectedColumns = G.enableTor() ? selectedColumns + 1 : selectedColumns;
     }
 
     private void registerLogService() {
@@ -282,24 +282,30 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         }
     }
 
-    private void  registerUIRefresh(){
+    @SuppressLint("UnspecifiedRegisterReceiverFlag")
+    private void registerUIRefresh() {
         IntentFilter filter = new IntentFilter("dev.ukanth.ufirewall.ui.CHECKREFRESH");
         uiRefreshReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 updateSelectedColumns();
-                if(selectedColumns <= DEFAULT_VIEW_LIMIT && currentUI == 1) {
+                if (selectedColumns <= DEFAULT_VIEW_LIMIT && currentUI == 1) {
                     recreate();
-                }
-                else if(selectedColumns > DEFAULT_VIEW_LIMIT && currentUI == 0){
+                } else if (selectedColumns > DEFAULT_VIEW_LIMIT && currentUI == 0) {
                     recreate();
-                } else{
+                } else {
                     recreate();
                 }
             }
         };
-        registerReceiver(uiRefreshReceiver, filter);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(uiRefreshReceiver, filter, RECEIVER_EXPORTED);
+        } else {
+            registerReceiver(uiRefreshReceiver, filter);
+        }
     }
+
+    @SuppressLint("UnspecifiedRegisterReceiverFlag")
     private void registerThemeIntent() {
 
         IntentFilter filter = new IntentFilter("dev.ukanth.ufirewall.theme.REFRESH");
@@ -310,7 +316,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 recreate();
             }
         };
-        registerReceiver(themeRefreshReceiver, filter);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(themeRefreshReceiver, filter, RECEIVER_EXPORTED);
+        } else {
+            registerReceiver(themeRefreshReceiver, filter);
+        }
     }
 
     private void probeLogTarget() {
@@ -379,7 +389,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private void registerNetworkObserver() {
         startService(new Intent(getBaseContext(), FirewallService.class));
         //start log service
-        if(G.enableLogService()) {
+        if (G.enableLogService()) {
             startService(new Intent(getBaseContext(), LogService.class));
         }
     }
@@ -418,6 +428,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }*/
 
 
+    @SuppressLint("UnspecifiedRegisterReceiverFlag")
     private void registerToastbroadcast() {
         IntentFilter filter = new IntentFilter("TOAST");
         toastReceiver = new BroadcastReceiver() {
@@ -426,7 +437,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 Api.toast(getApplicationContext(), intent.getExtras().get("MSG") != null ? intent.getExtras().get("MSG").toString() : "", Toast.LENGTH_SHORT);
             }
         };
-        registerReceiver(toastReceiver, filter);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(toastReceiver, filter, RECEIVER_EXPORTED);
+        } else {
+            registerReceiver(toastReceiver, filter);
+        }
     }
 
     private void registerUIbroadcast4() {
@@ -436,7 +451,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             @Override
             public void onReceive(Context context, Intent intent) {
                 Bundle b = intent.getExtras();
-                if(runProgress !=null) {
+                if (runProgress != null) {
                     TextView view = (TextView) runProgress.findViewById(R.id.apply4);
                     view.setText(b.get("INDEX") + "/" + b.get("SIZE"));
                     view.invalidate();
@@ -452,7 +467,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             @Override
             public void onReceive(Context context, Intent intent) {
                 Bundle b = intent.getExtras();
-                if(runProgress !=null) {
+                if (runProgress != null) {
                     TextView view = (TextView) runProgress.findViewById(R.id.apply6);
                     view.setText(b.get("INDEX") + "/" + b.get("SIZE"));
                     view.invalidate();
@@ -496,19 +511,15 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private void selectFilterGroup() {
         if (G.showFilter()) {
             RadioGroup radioGroup = findViewById(R.id.appFilterGroup);
-            switch (radioGroup.getCheckedRadioButtonId()) {
-                case R.id.rpkg_core:
-                    filterApps(2);
-                    break;
-                case R.id.rpkg_sys:
-                    filterApps(0);
-                    break;
-                case R.id.rpkg_user:
-                    filterApps(1);
-                    break;
-                default:
-                    filterApps(-1);
-                    break;
+            int selectedId = radioGroup.getCheckedRadioButtonId();
+            if (selectedId == R.id.rpkg_core) {
+                filterApps(2);
+            } else if (selectedId == R.id.rpkg_sys) {
+                filterApps(0);
+            } else if (selectedId == R.id.rpkg_user) {
+                filterApps(1);
+            } else {
+                filterApps(-1);
             }
         } else {
             filterApps(-1);
@@ -535,13 +546,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             }
             inputList = new ArrayList<>(returnList);
         } else {
-            if(allApps != null && allApps.size() > 0) {
+            if (allApps != null && allApps.size() > 0) {
                 inputList = allApps;
-            } else{
+            } else {
                 inputList = new ArrayList<>(returnList);
             }
         }
-        if(inputList != null && inputList.size() > 0) {
+        if (inputList != null && inputList.size() > 0) {
             try {
                 Collections.sort(inputList, new PackageComparator());
             } catch (Exception e) {
@@ -557,7 +568,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             appAdapter.notifyDataSetChanged();
             // restore
             this.listview.setSelectionFromTop(index, top);
-        } else{
+        } else {
             Log.d(Api.TAG, "Input list is empty");
         }
     }
@@ -571,7 +582,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     protected void onRestart() {
         super.onRestart();
     }
-
 
 
     private void updateIconStatus() {
@@ -739,23 +749,18 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     @Override
     public void onCheckedChanged(RadioGroup group, int checkedId) {
-        switch (checkedId) {
-            case R.id.rpkg_all:
-                filterApps(-1);
-                G.saveSelectedFilter(99);
-                break;
-            case R.id.rpkg_core:
-                filterApps(2);
-                G.saveSelectedFilter(0);
-                break;
-            case R.id.rpkg_sys:
-                filterApps(0);
-                G.saveSelectedFilter(1);
-                break;
-            case R.id.rpkg_user:
-                filterApps(1);
-                G.saveSelectedFilter(2);
-                break;
+        if (checkedId == R.id.rpkg_all) {
+            filterApps(-1);
+            G.saveSelectedFilter(99);
+        } else if (checkedId == R.id.rpkg_core) {
+            filterApps(2);
+            G.saveSelectedFilter(0);
+        } else if (checkedId == R.id.rpkg_sys) {
+            filterApps(0);
+            G.saveSelectedFilter(1);
+        } else if (checkedId == R.id.rpkg_user) {
+            filterApps(1);
+            G.saveSelectedFilter(2);
         }
     }
 
@@ -1031,7 +1036,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             if (apps2 != null) {
                 Collections.sort(apps2, new PackageComparator());
                 ArrayAdapter appAdapter;
-                if(selectedColumns <= DEFAULT_VIEW_LIMIT) {
+                if (selectedColumns <= DEFAULT_VIEW_LIMIT) {
                     appAdapter = new AppListArrayAdapter(this, getApplicationContext(), apps2, true);
                 } else {
                     appAdapter = new AppListArrayAdapter(this, getApplicationContext(), apps2);
@@ -1047,7 +1052,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     @Override
     public boolean onSearchRequested() {
-        if(mainMenu != null) {
+        if (mainMenu != null) {
             MenuItem menuItem = mainMenu.findItem(R.id.menu_search); // R.string.search is the id of the searchview
             if (menuItem != null) {
                 if (menuItem.isActionViewExpanded()) {
@@ -1141,138 +1146,123 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
         super.onOptionsItemSelected(item);
-        MenuItem menuItem;
-        switch (item.getItemId()) {
-
-		/*case android.R.id.home:
+        int selectedItem = item.getItemId();
+        if (selectedItem == R.id.menu_legend) {
+            LayoutInflater inflater = LayoutInflater.from(this);
+            View view = inflater.inflate(R.layout.legend, null, false);
+            dialogLegend = new AlertDialog.Builder(this)
+                    .setView(view)
+                    .setCancelable(true)
+                    .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                        @Override
+                        public void onDismiss(DialogInterface dialogInterface) {
+                            dialogLegend = null;
+                        }
+                    })
+                    .create();
+            dialogLegend.show();
+            return true;
+        } else if (selectedItem == R.id.menu_toggle) {
             disableOrEnable();
-	        return true;*/
-            case R.id.menu_legend:
-                LayoutInflater inflater = LayoutInflater.from(this);
-                View view = inflater.inflate(R.layout.legend, null, false);
-                dialogLegend = new AlertDialog.Builder(this)
-                        .setView(view)
-                        .setCancelable(true)
-                        .setOnDismissListener(new DialogInterface.OnDismissListener() {
-                            @Override
-                            public void onDismiss(DialogInterface dialogInterface) {
-                                dialogLegend = null;
-                            }
-                        })
-                        .create();
-                dialogLegend.show();
-                return true;
-            case R.id.menu_toggle:
-                disableOrEnable();
-                return true;
-            case R.id.allowmode:
-                item.setChecked(true);
-                Editor editor = getSharedPreferences(Api.PREFS_NAME, 0).edit();
-                editor.putString(Api.PREF_MODE, Api.MODE_WHITELIST);
-                editor.commit();
-                refreshHeader();
-                return true;
-            case R.id.blockmode:
-                item.setChecked(true);
-                Editor editor2 = getSharedPreferences(Api.PREFS_NAME, 0).edit();
-                editor2.putString(Api.PREF_MODE, Api.MODE_BLACKLIST);
-                editor2.commit();
-                refreshHeader();
-                return true;
-            case R.id.sort_default:
-                G.sortBy("s0");
-                item.setChecked(true);
-                Api.applications = null;
-                showOrLoadApplications();
-                return true;
-            case R.id.sort_lastupdate:
-                G.sortBy("s1");
-                item.setChecked(true);
-                Api.applications = null;
-                showOrLoadApplications();
-                return true;
-            case R.id.sort_uid:
-                G.sortBy("s2");
-                item.setChecked(true);
-                Api.applications = null;
-                showOrLoadApplications();
-                return true;
-            case R.id.menu_apply:
-                applyOrSaveRules();
-                return true;
-            case R.id.menu_exit:
-                finish();
-                //System.exit(0);
-                return false;
-            case R.id.menu_help:
-                showAbout();
-                return true;
-            /*case R.id.menu_customrules:
-                //G.hidden();
-                startCustomRules();
-                return true;*/
-            case R.id.menu_log:
-                showLog();
-                return true;
-            case R.id.menu_rules:
-                showRules();
-                return true;
-            case R.id.menu_setcustom:
-                setCustomScript();
-                return true;
-            case R.id.menu_preference:
-                showPreferences();
-                return true;
-        /*case R.id.menu_reload:
+            return true;
+        } else if (selectedItem == R.id.allowmode) {
+            item.setChecked(true);
+            Editor editor = getSharedPreferences(Api.PREFS_NAME, 0).edit();
+            editor.putString(Api.PREF_MODE, Api.MODE_WHITELIST);
+            editor.commit();
+            refreshHeader();
+            return true;
+        } else if (selectedItem == R.id.blockmode) {
+            item.setChecked(true);
+            Editor editor2 = getSharedPreferences(Api.PREFS_NAME, 0).edit();
+            editor2.putString(Api.PREF_MODE, Api.MODE_BLACKLIST);
+            editor2.commit();
+            refreshHeader();
+            return true;
+        } else if (selectedItem == R.id.sort_default) {
+            G.sortBy("s0");
+            item.setChecked(true);
             Api.applications = null;
-			showOrLoadApplications();
-			return true;*/
-            case R.id.menu_search:
-                search(item);
-                return true;
-            case R.id.menu_export:
-                if(Build.VERSION.SDK_INT  >= Build.VERSION_CODES.Q ){
-                    // Do some stuff
+            showOrLoadApplications();
+            return true;
+        } else if (selectedItem == R.id.sort_lastupdate) {
+            G.sortBy("s1");
+            item.setChecked(true);
+            Api.applications = null;
+            showOrLoadApplications();
+            return true;
+        } else if (selectedItem == R.id.sort_uid) {
+            G.sortBy("s2");
+            item.setChecked(true);
+            Api.applications = null;
+            showOrLoadApplications();
+            return true;
+        } else if (selectedItem == R.id.menu_apply) {
+            applyOrSaveRules();
+            return true;
+        } else if (selectedItem == R.id.menu_exit) {
+            finish();
+            return true;
+        } else if (selectedItem == R.id.menu_help) {
+            showAbout();
+            return true;
+        } else if (selectedItem == R.id.menu_log) {
+            showLog();
+            return true;
+        } else if (selectedItem == R.id.menu_rules) {
+            showRules();
+            return true;
+        } else if (selectedItem == R.id.menu_setcustom) {
+            setCustomScript();
+            return true;
+        } else if (selectedItem == R.id.menu_preference) {
+            showPreferences();
+            return true;
+        } else if (selectedItem == R.id.menu_search) {
+            search(item);
+            return true;
+        } else if (selectedItem == R.id.menu_export) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                // Do some stuff
+                showExportDialog();
+            } else {
+                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                        != PackageManager.PERMISSION_GRANTED) {
+                    // permissions have not been granted.
+                    ActivityCompat.requestPermissions(MainActivity.this,
+                            new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                            MY_PERMISSIONS_REQUEST_WRITE_STORAGE);
+                } else {
                     showExportDialog();
-                } else {
-                    if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                            != PackageManager.PERMISSION_GRANTED) {
-                        // permissions have not been granted.
-                        ActivityCompat.requestPermissions(MainActivity.this,
-                                new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                                MY_PERMISSIONS_REQUEST_WRITE_STORAGE);
-                    } else{
-                        showExportDialog();
-                    }
                 }
-                return true;
-            case R.id.menu_import:
-                if(Build.VERSION.SDK_INT  >= Build.VERSION_CODES.Q ){
-                    // Do some stuff
-                    copyOldExportedData();
-                    showImportDialog();
-                } else {
-                    if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
-                            != PackageManager.PERMISSION_GRANTED) {
-                        // permissions have not been granted.
-                        ActivityCompat.requestPermissions(MainActivity.this,
-                                new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                                MY_PERMISSIONS_REQUEST_READ_STORAGE);
+            }
+            return true;
+        } else if (selectedItem == R.id.menu_import) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                // Do some stuff
+                copyOldExportedData();
+                showImportDialog();
+            } else {
+                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                        != PackageManager.PERMISSION_GRANTED) {
+                    // permissions have not been granted.
+                    ActivityCompat.requestPermissions(MainActivity.this,
+                            new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                            MY_PERMISSIONS_REQUEST_READ_STORAGE);
 
-                    } else {
-                        showImportDialog();
-                    }
+                } else {
+                    showImportDialog();
                 }
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
+            }
+            return true;
+        } else {
+            return super.onOptionsItemSelected(item);
         }
     }
 
     private void copyOldExportedData() {
-        if(!G.hasCopyOld()) {
+        if (!G.hasCopyOld()) {
             //using root to copy existing data to current directory on A11
             String existingDir = Environment.getExternalStorageDirectory() + "//afwall//";
             String targetDir = ctx.getExternalFilesDir(null) + "/";
@@ -1324,9 +1314,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                             //Intent intent = new Intent(MainActivity.this, FileChooserActivity.class);
                             //startActivityForResult(intent, FILE_CHOOSER_LOCAL);
                             File mPath = null;
-                            if(Build.VERSION.SDK_INT  < Build.VERSION_CODES.Q ){
+                            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
                                 mPath = new File(Environment.getExternalStorageDirectory() + "//afwall//");
-                            } else{
+                            } else {
                                 mPath = new File(ctx.getExternalFilesDir(null) + "/");
                             }
                             FileDialog fileDialog = new FileDialog(MainActivity.this, mPath, true);
@@ -1356,9 +1346,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                             if (G.isDoKey(getApplicationContext()) || isDonate()) {
 
                                 File mPath2 = null;
-                                if(Build.VERSION.SDK_INT  < Build.VERSION_CODES.Q ){
+                                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
                                     mPath2 = new File(Environment.getExternalStorageDirectory() + "//afwall//");
-                                } else{
+                                } else {
                                     mPath2 = new File(ctx.getExternalFilesDir(null), "/");
                                 }
                                 FileDialog fileDialog2 = new FileDialog(MainActivity.this, mPath2, false);
@@ -1629,19 +1619,16 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     @Override
     public void onClick(View v) {
-
-        switch (v.getId()) {
-            case R.id.img_wifi:
-            case R.id.img_3g:
-            case R.id.img_roam:
-            case R.id.img_vpn:
-            case R.id.img_tether:
-            case R.id.img_lan:
-            case R.id.img_tor:
-                selectActionConfirmation(v.getId());
-                break;
-            case R.id.img_action:
-                selectAction();
+        int id = v.getId();
+        if (id == R.id.img_wifi || id == R.id.img_3g
+                || id == R.id.img_roam
+                || id == R.id.img_vpn
+                || id == R.id.img_tether
+                || id == R.id.img_lan
+                || id == R.id.img_tor) {
+            selectActionConfirmation(v.getId());
+        } else if (id == R.id.img_action) {
+            selectAction();
         }
     }
 
@@ -1771,28 +1758,20 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             for (item = 0; item < count; item++) {
                 PackageInfoData data = (PackageInfoData) adapter.getItem(item);
                 if (data.uid != Api.SPECIAL_UID_ANY) {
-                    switch (flag) {
-                        case R.id.img_wifi:
-                            data.selected_wifi = !data.selected_wifi;
-                            break;
-                        case R.id.img_3g:
-                            data.selected_3g = !data.selected_3g;
-                            break;
-                        case R.id.img_roam:
-                            data.selected_roam = !data.selected_roam;
-                            break;
-                        case R.id.img_vpn:
-                            data.selected_vpn = !data.selected_vpn;
-                            break;
-                        case R.id.img_tether:
-                            data.selected_tether = !data.selected_tether;
-                            break;
-                        case R.id.img_lan:
-                            data.selected_lan = !data.selected_lan;
-                            break;
-                        case R.id.img_tor:
-                            data.selected_tor = !data.selected_tor;
-                            break;
+                    if (flag == R.id.img_wifi) {
+                        data.selected_wifi = !data.selected_wifi;
+                    } else if (flag == R.id.img_3g) {
+                        data.selected_3g = !data.selected_3g;
+                    } else if (flag == R.id.img_roam) {
+                        data.selected_roam = !data.selected_roam;
+                    } else if (flag == R.id.img_vpn) {
+                        data.selected_vpn = !data.selected_vpn;
+                    } else if (flag == R.id.img_tether) {
+                        data.selected_tether = !data.selected_tether;
+                    } else if (flag == R.id.img_lan) {
+                        data.selected_lan = !data.selected_lan;
+                    } else if (flag == R.id.img_tor) {
+                        data.selected_tor = !data.selected_tor;
                     }
                     //addToQueue(data);
                 }
@@ -2223,116 +2202,83 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         getString(R.string.check_all),
                         getString(R.string.invert_all),
                         getString(R.string.uncheck_all)})
-                .itemsCallback(new MaterialDialog.ListCallback() {
-                    @Override
-                    public void onSelection(MaterialDialog dialog, View view, int which, CharSequence text) {
-                        switch (which) {
-                            case 0:
-                                switch (i) {
-                                    case R.id.img_wifi:
-                                        dialog.setTitle(text + getString(R.string.wifi));
-                                        selectAllWifi(true);
-                                        break;
-                                    case R.id.img_3g:
-                                        dialog.setTitle(text + getString(R.string.data));
-                                        selectAll3G(true);
-                                        break;
-                                    case R.id.img_roam:
-                                        dialog.setTitle(text + getString(R.string.roam));
-                                        selectAllRoam(true);
-                                        break;
-                                    case R.id.img_vpn:
-                                        dialog.setTitle(text + getString(R.string.vpn));
-                                        selectAllVPN(true);
-                                        break;
-                                    case R.id.img_tether:
-                                        dialog.setTitle(text + getString(R.string.tether));
-                                        selectAlltether(true);
-                                        break;
-                                    case R.id.img_lan:
-                                        dialog.setTitle(text + getString(R.string.lan));
-                                        selectAllLAN(true);
-                                        break;
-                                    case R.id.img_tor:
-                                        dialog.setTitle(text + getString(R.string.tor));
-                                        selectAllTor(true);
-                                        break;
-                                }
-                                break;
-                            case 1:
-                                switch (i) {
-                                    case R.id.img_wifi:
-                                        dialog.setTitle(text + getString(R.string.wifi));
-                                        break;
-                                    case R.id.img_3g:
-                                        dialog.setTitle(text + getString(R.string.data));
-                                        break;
-                                    case R.id.img_roam:
-                                        dialog.setTitle(text + getString(R.string.roam));
-                                        break;
-                                    case R.id.img_vpn:
-                                        dialog.setTitle(text + getString(R.string.vpn));
-                                        break;
-                                    case R.id.img_tether:
-                                        dialog.setTitle(text + getString(R.string.tether));
-                                        break;
-                                    case R.id.img_lan:
-                                        dialog.setTitle(text + getString(R.string.lan));
-                                        break;
-                                    case R.id.img_tor:
-                                        dialog.setTitle(text + getString(R.string.tor));
-                                        break;
-                                }
-                                selectRevert(i);
-                                dirty = true;
-                                break;
-                            case 2:
-                                switch (i) {
-                                    case R.id.img_wifi:
-                                        dialog.setTitle(text + getString(R.string.wifi));
-                                        selectAllWifi(false);
-                                        break;
-                                    case R.id.img_3g:
-                                        dialog.setTitle(text + getString(R.string.data));
-                                        selectAll3G(false);
-                                        break;
-                                    case R.id.img_roam:
-                                        dialog.setTitle(text + getString(R.string.roam));
-                                        selectAllRoam(false);
-                                        break;
-                                    case R.id.img_vpn:
-                                        dialog.setTitle(text + getString(R.string.vpn));
-                                        selectAllVPN(false);
-                                        break;
-                                    case R.id.img_tether:
-                                        dialog.setTitle(text + getString(R.string.tether));
-                                        selectAlltether(false);
-                                        break;
-                                    case R.id.img_lan:
-                                        dialog.setTitle(text + getString(R.string.lan));
-                                        selectAllLAN(false);
-                                        break;
-                                    case R.id.img_tor:
-                                        dialog.setTitle(text + getString(R.string.tor));
-                                        selectAllTor(false);
-                                        break;
-                                }
-                                break;
+                .itemsCallback((dialog, view, which, text) -> {
+                    if (which == 0) {
+                        if (i == R.id.img_wifi) {
+                            dialog.setTitle(text + getString(R.string.wifi));
+                            selectAllWifi(true);
+                        } else if (i == R.id.img_3g) {
+                            dialog.setTitle(text + getString(R.string.data));
+                            selectAll3G(true);
+                        } else if (i == R.id.img_roam) {
+                            dialog.setTitle(text + getString(R.string.roam));
+                            selectAllRoam(true);
+                        } else if (i == R.id.img_vpn) {
+                            dialog.setTitle(text + getString(R.string.vpn));
+                            selectAllVPN(true);
+                        } else if (i == R.id.img_tether) {
+                            dialog.setTitle(text + getString(R.string.tether));
+                            selectAlltether(true);
+                        } else if (i == R.id.img_lan) {
+                            dialog.setTitle(text + getString(R.string.lan));
+                            selectAllLAN(true);
+                        } else if (i == R.id.img_tor) {
+                            dialog.setTitle(text + getString(R.string.tor));
+                            selectAllTor(true);
+                        }
+                    } else if (which == 1) {
+                        if (i == R.id.img_wifi) {
+                            dialog.setTitle(text + getString(R.string.wifi));
+                        } else if (i == R.id.img_3g) {
+                            dialog.setTitle(text + getString(R.string.data));
+                        } else if (i == R.id.img_roam) {
+                            dialog.setTitle(text + getString(R.string.roam));
+                        } else if (i == R.id.img_vpn) {
+                            dialog.setTitle(text + getString(R.string.vpn));
+                        } else if (i == R.id.img_tether) {
+                            dialog.setTitle(text + getString(R.string.tether));
+                        } else if (i == R.id.img_lan) {
+                            dialog.setTitle(text + getString(R.string.lan));
+                        } else if (i == R.id.img_tor) {
+                            dialog.setTitle(text + getString(R.string.tor));
+                        }
+                        selectRevert(i);
+                        dirty = true;
+                    } else if (which == 2) {
+
+                        if (i == R.id.img_wifi) {
+                            dialog.setTitle(text + getString(R.string.wifi));
+                            selectAllWifi(false);
+                        } else if (i == R.id.img_3g) {
+                            dialog.setTitle(text + getString(R.string.data));
+                            selectAll3G(false);
+                        } else if (i == R.id.img_roam) {
+                            dialog.setTitle(text + getString(R.string.roam));
+                            selectAllRoam(false);
+                        } else if (i == R.id.img_vpn) {
+                            dialog.setTitle(text + getString(R.string.vpn));
+                            selectAllVPN(false);
+                        } else if (i == R.id.img_tether) {
+                            dialog.setTitle(text + getString(R.string.tether));
+                            selectAlltether(false);
+                        } else if (i == R.id.img_lan) {
+                            dialog.setTitle(text + getString(R.string.lan));
+                            selectAllLAN(false);
+                        } else if (i == R.id.img_tor) {
+                            dialog.setTitle(text + getString(R.string.tor));
+                            selectAllTor(false);
                         }
                     }
                 }).show();
     }
 
     protected boolean isSuPackage(PackageManager pm, String suPackage) {
-        boolean found = false;
         try {
             PackageInfo info = pm.getPackageInfo(suPackage, 0);
-            if (info.applicationInfo != null) {
-                found = true;
-            }
-        } catch (Exception e) {
+            return info.applicationInfo != null;
+        } catch (PackageManager.NameNotFoundException e) {
+            return false;
         }
-        return found;
     }
 
     @Override
@@ -2447,7 +2393,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         protected void onPreExecute() {
             plsWait = new MaterialDialog.Builder(activityReference.get()).cancelable(false).
                     title(getString(R.string.reading_apps)).progress(false, getPackageManager().getInstalledApplications(0)
-                    .size(), true).show();
+                            .size(), true).show();
             doProgress(0);
         }
 
@@ -2523,7 +2469,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     //        : R.string.saving_rules)
                     .negativeText("Dismiss")
                     .show();
-            if(G.enableIPv6()) {
+            if (G.enableIPv6()) {
                 runProgress.findViewById(R.id.apply6layout).setVisibility(View.VISIBLE);
             }
         }
@@ -2616,7 +2562,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             //open shell if required
             Shell.getShell().isRoot();
             suGranted[0] = Shell.isAppGrantedRoot();
-            unsupportedSU = isSuPackage(getPackageManager(), "com.kingouser.com");
+            unsupportedSU = isSuPackage(getPackageManager(), "com.kingroot.kinguser");
             return null;
         }
 

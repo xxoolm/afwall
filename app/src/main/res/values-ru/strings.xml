@@ -331,8 +331,6 @@
     <string name="showfilter_summary_off">Фильтры (все/ядро/система/пользователь) скрыты в главном окне</string>
     <string name="enable_dns">Включить DNS через netd</string>
     <string name="disable_dns">Отключить DNS через netd</string>
-    <string name="dns_proxy_title">Прокси-сервер DNS </string>
-    <string name="dns_proxy_summary">DNS-запросы через netd на Android 4.3 и более поздних версиях. При отключении будет блокирован интернет на этих устройствах.</string>
     <string name="tasker_lable">Плагин Tasker AFWall+</string>
     <string name="enable">Включить</string>
     <string name="disable">Отключить</string>
@@ -545,4 +543,7 @@
     <string name="log_service_select">Пожалуйста, сначала выберите цель журнала</string>
     <string name="log_service_watcher">Открытие журнала...</string>
     <string name="log_service_success">Журнал успешно запущен!</string>
+    <string name="unable_clone">Unable to clone</string>
+    <string name="add_delay">Add Delay</string>
+    <string name="add_delay_rules">Apply rules with 1sec delay.</string>
 </resources>

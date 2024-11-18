@@ -330,8 +330,6 @@
     <string name="showfilter_summary_off">Filtri (vse/jedro/sistem/uporabnik) niso prikazani na seznamu</string>
     <string name="enable_dns">Vklopi DNS preko netd</string>
     <string name="disable_dns">Izklopi DNS preko netd</string>
-    <string name="dns_proxy_title">DNS posredniški strežnik </string>
-    <string name="dns_proxy_summary">DNS lookups are via netd on Android 4.3 and later. Disabling this will block the Internet on those devices.</string>
     <string name="tasker_lable">Vtičnik Tasker za AFWall+</string>
     <string name="enable">Vklopi</string>
     <string name="disable">Izklopi</string>
@@ -544,4 +542,7 @@
     <string name="log_service_select">Please select log target first</string>
     <string name="log_service_watcher">Opening log watcher...</string>
     <string name="log_service_success">Started Log service Successfully!</string>
+    <string name="unable_clone">Unable to clone</string>
+    <string name="add_delay">Add Delay</string>
+    <string name="add_delay_rules">Apply rules with 1sec delay.</string>
 </resources>

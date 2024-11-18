@@ -5,6 +5,7 @@ on:
     branches: [ beta ]
   pull_request:
     branches: [ beta ]
+  workflow_dispatch:
 
 jobs:
   build:
@@ -16,9 +17,13 @@ jobs:
     - name: set up JDK
       uses: actions/setup-java@v1
       with:
-        java-version: 11
-    - name: Copy CI gradle.properties
-      run: mkdir -p ~/.gradle ; cp .github/ci-gradle.properties ~/.gradle/gradle.properties
-      
+        java-version: 17
     - name: Build with Gradle
       run: ./gradlew build
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: build-artifacts
+        path: |
+          app/build/outputs/apk/
+          app/build/outputs/bundle/

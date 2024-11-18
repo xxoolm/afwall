@@ -330,8 +330,6 @@
     <string name="showfilter_summary_off">Filter (Semua/core/sistem/pengguna) disembunyikan pada tampilan utama</string>
     <string name="enable_dns">Aktifkan DNS dari netd</string>
     <string name="disable_dns">Matikan DNS dari netd</string>
-    <string name="dns_proxy_title">Proxy DNS </string>
-    <string name="dns_proxy_summary">DNS lookups melalui netd pada Android 4.3 dan yang lebih baru. Menonaktifkan pengaturan ini akan memblokir akses internet pada perangkat ini.</string>
     <string name="tasker_lable">Plugin Tasker AFWall+</string>
     <string name="enable">Aktifkan</string>
     <string name="disable">Matikan</string>
@@ -544,4 +542,7 @@
     <string name="log_service_select">Silakan pilih target log terlebih dahulu</string>
     <string name="log_service_watcher">Membuka pengintai log...</string>
     <string name="log_service_success">Berhasil memulai servis Log!</string>
+    <string name="unable_clone">Unable to clone</string>
+    <string name="add_delay">Add Delay</string>
+    <string name="add_delay_rules">Apply rules with 1sec delay.</string>
 </resources>

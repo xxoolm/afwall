@@ -330,8 +330,6 @@
     <string name="showfilter_summary_off">Filtre (Alle/Kjerne/System/Bruker) skjules i hovedvisningen</string>
     <string name="enable_dns">Aktiver DNS via netd</string>
     <string name="disable_dns">Deaktiver DNS via netd</string>
-    <string name="dns_proxy_title">DNS-mellomtjener</string>
-    <string name="dns_proxy_summary">DNS lookups are via netd on Android 4.3 and later. Disabling this will block the Internet on those devices.</string>
     <string name="tasker_lable">AFWall+ Tasker-tillegg</string>
     <string name="enable">Aktiver</string>
     <string name="disable">Deaktiver</string>
@@ -544,4 +542,7 @@
     <string name="log_service_select">Please select log target first</string>
     <string name="log_service_watcher">Opening log watcher...</string>
     <string name="log_service_success">Started Log service Successfully!</string>
+    <string name="unable_clone">Unable to clone</string>
+    <string name="add_delay">Add Delay</string>
+    <string name="add_delay_rules">Apply rules with 1sec delay.</string>
 </resources>
